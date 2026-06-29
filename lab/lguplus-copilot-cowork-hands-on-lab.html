@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>실습 교안 · CEO 의사결정 브리프 자동화 — Copilot Cowork Hands-on Lab</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+:root{
+  --primary:#EA002C; --on-primary:#ffffff; --primary-deep:#FF7A00;
+  --grad-start:#EA002C; --grad-end:#FF7A00;
+  --accent-purple:#FF7A00; --accent-orange:#d44602; --accent-teal:#0a8a7f;
+  --ink:#000000; --ink-soft:#212529; --body:#666666; --mute:#aaaaaa;
+  --line:#eeeeee; --line-strong:#cccccc;
+  --canvas:#ffffff; --canvas-soft:#f5f5f5;
+  --footer:#1f1f1f; --footer-soft:#2d2926; --on-dark:#ffffff;
+  --brand-gradient:linear-gradient(150deg,#EA002C -18%,#FF7A00 87%);
+  --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Dotum",sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --r-md:8px; --r-card:14px; --r-card-lg:16px; --r-pill:20px; --r-full:9999px;
+  --gut:32px; --maxw:1280px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--canvas);color:var(--ink);
+  -webkit-font-smoothing:antialiased;line-height:1.5;font-weight:400}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+
+/* progress bar */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--brand-gradient);z-index:100;transition:width .1s linear}
+
+/* promo */
+.promo{background:var(--footer);color:var(--on-dark);font-size:13px;font-weight:300}
+.promo .wrap{display:flex;align-items:center;justify-content:space-between;padding:9px var(--gut);min-height:38px}
+.promo b{font-weight:700}.promo .magenta{color:#ff6a5f}
+.promo a{color:#cfcfcf}.promo a:hover{color:#fff}
+
+/* nav */
+.nav{background:var(--canvas);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px var(--gut)}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:21px;letter-spacing:-0.4px;text-decoration:none;color:inherit;cursor:pointer}
+a.logo:hover .ms{color:var(--primary)}
+.logo .u{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--brand-gradient);color:#fff;font-size:17px;font-weight:800}
+.logo .x{color:var(--mute);font-weight:300;font-size:17px}
+.logo .ms{font-weight:600;color:var(--ink-soft);font-family:"Segoe UI","Segoe UI Variable Display",system-ui,-apple-system,Arial,sans-serif}
+.logo .cpmark{flex-shrink:0;display:block;height:28px;width:auto}.foot .logo-f .cpmark{flex-shrink:0;display:block;height:22px;width:auto}.logo .uplusx{flex-shrink:0;display:block;height:30px;width:auto}.foot .logo-f .uplusf{flex-shrink:0;display:block;height:24px;width:auto}
+.logo .tagsm{font-size:11px;font-weight:700;color:var(--primary);background:#fff2ef;padding:3px 9px;border-radius:var(--r-pill);margin-left:4px}
+.nav-links{display:flex;gap:30px;font-size:16px;font-weight:400}
+.nav-links a{color:var(--ink);transition:color .15s;position:relative;padding:4px 0}.nav-links a:hover{color:var(--primary)}
+.nav-cta{display:flex;align-items:center;gap:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font);font-size:16px;font-weight:500;line-height:24px;padding:12px 30px;border-radius:var(--r-pill);border:1px solid transparent;cursor:pointer;transition:transform .12s,filter .15s,background .15s;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn-primary:hover{filter:brightness(1.08)}
+.btn-gradient{background:var(--brand-gradient);color:#fff}.btn-gradient:hover{filter:brightness(1.07)}
+.btn-outline{background:#fff;color:var(--primary);border-color:var(--primary)}.btn-outline:hover{background:#fff2ef}
+.btn-ghost{background:#fff;color:var(--ink);border-color:var(--line-strong)}.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{padding:8px 18px;font-size:14px}.nav-cta .nav-lab{font-weight:700;padding:9px 22px}
+
+/* hero */
+.hero{padding:74px 0 60px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.1fr 0.9fr;gap:52px;align-items:center}
+.badge-grad{display:inline-flex;align-items:center;gap:8px;background:var(--brand-gradient);color:#fff;font-size:13px;font-weight:700;padding:8px 16px;border-radius:var(--r-pill);margin-bottom:24px}
+.badge-grad .dot{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9}
+.hero h1{font-size:46px;font-weight:700;line-height:1.24;letter-spacing:-0.8px}
+.hero h1 .accent{background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .lede{margin-top:22px;font-size:18px;font-weight:300;line-height:1.9;color:var(--body);max-width:540px}
+.hero-cta{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap}
+.lab-facts{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
+.fact{border:1px solid var(--line);border-radius:var(--r-card);padding:14px 18px;min-width:120px}
+.fact .k{font-size:12px;font-weight:300;color:var(--mute)}
+.fact .v{font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-0.3px}
+.fact .v .mg{color:var(--primary)}
+
+/* hero side: outcome preview */
+.goalbox{background:var(--canvas-soft);border:1px solid var(--line);border-radius:var(--r-card-lg);padding:26px}
+.goalbox h4{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:16px;letter-spacing:0.3px}
+.goalbox .gi{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:300;line-height:1.5;color:var(--ink-soft)}
+.goalbox .gi:last-child{border-bottom:0}
+.goalbox .gi .num{flex-shrink:0;width:22px;height:22px;border-radius:var(--r-full);background:var(--brand-gradient);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+
+/* section */
+section{padding:60px 0}
+.eyebrow{display:inline-block;font-size:14px;font-weight:700;color:var(--primary);margin-bottom:14px}
+.sec-head{max-width:780px;margin:0 auto 44px;text-align:center}
+.sec-head h2{font-size:32px;font-weight:700;line-height:1.34;letter-spacing:-0.4px}
+.sec-head p{margin-top:16px;font-size:16px;font-weight:300;line-height:1.85;color:var(--body)}
+
+/* prereqs / outcomes cards */
+.cardrow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.icard{border:1px solid var(--line);border-radius:var(--r-card);padding:24px}
+.icard .ic{font-size:24px;margin-bottom:14px}
+.icard h3{font-size:17px;font-weight:700;margin-bottom:9px;letter-spacing:-0.2px}
+.icard p{font-size:14px;font-weight:300;line-height:1.75;color:var(--body)}
+.icard .chip{display:inline-block;font-size:11px;font-weight:700;color:var(--primary);background:#fff2ef;padding:3px 9px;border-radius:6px;margin-top:12px}
+
+/* roadmap */
+.roadmap{background:var(--canvas-soft)}
+.rm-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.rm{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:20px;position:relative}
+.rm .mno{font-size:12px;font-weight:700;color:var(--primary)}
+.rm h4{font-size:16px;font-weight:700;margin:8px 0 8px;letter-spacing:-0.2px;line-height:1.3}
+.rm p{font-size:12px;font-weight:300;color:var(--body);line-height:1.6}
+.rm .steps{font-size:11px;font-weight:500;color:var(--mute);margin-top:12px}
+
+/* ===== Lab body: TOC + content ===== */
+.lab{display:grid;grid-template-columns:248px 1fr;gap:44px;align-items:start;padding-top:30px}
+.toc{position:sticky;top:84px;align-self:start}
+.toc h5{font-size:12px;font-weight:700;color:var(--mute);letter-spacing:0.5px;margin-bottom:14px;text-transform:uppercase}
+.toc ol{list-style:none}
+.toc .mod{font-size:12px;font-weight:700;color:var(--ink-soft);margin:16px 0 7px;padding-left:2px}
+.toc .mod:first-child{margin-top:0}
+.toc li a{display:block;font-size:13px;font-weight:300;color:var(--body);padding:6px 0 6px 14px;border-left:2px solid var(--line);transition:all .15s;line-height:1.4}
+.toc li a:hover{color:var(--ink);border-color:var(--line-strong)}
+.toc li a.active{color:var(--primary);font-weight:500;border-color:var(--primary)}
+
+.content{min-width:0}
+
+/* module header */
+.modhead{margin:0 0 28px;padding:26px 28px;border-radius:var(--r-card-lg);background:var(--brand-gradient);color:#fff}
+.modhead .mlabel{font-size:13px;font-weight:700;opacity:.9;letter-spacing:0.3px}
+.modhead h2{font-size:26px;font-weight:700;letter-spacing:-0.4px;margin:8px 0 8px;line-height:1.3}
+.modhead p{font-size:14px;font-weight:300;line-height:1.7;opacity:.94;max-width:680px}
+.module{margin-bottom:56px;scroll-margin-top:80px}
+
+/* step card */
+.step{border:1px solid var(--line);border-radius:var(--r-card-lg);overflow:hidden;margin-bottom:22px;scroll-margin-top:80px}
+.step-top{display:flex;align-items:center;gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
+.step-top .sn{flex-shrink:0;width:40px;height:40px;border-radius:var(--r-full);background:var(--brand-gradient);color:#fff;font-weight:700;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+.step-top h3{font-size:19px;font-weight:700;letter-spacing:-0.3px;line-height:1.3}
+.step-top .kind{margin-left:auto;font-size:11px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);white-space:nowrap}
+.kind.prompt{color:var(--primary);background:#fff2ef}
+.kind.action{color:var(--accent-purple);background:#f3ecfc}
+.kind.verify{color:var(--accent-teal);background:#e6f5f3}
+.step-body{padding:24px 26px}
+
+.do-label{font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.do-label .ico{color:var(--primary)}
+.do-text{font-size:15px;font-weight:300;line-height:1.85;color:var(--ink-soft);margin-bottom:16px}
+
+/* prompt block */
+.prompt-box{position:relative;background:#1f1f1f;border-radius:var(--r-card);padding:18px 20px;margin-bottom:18px}
+.prompt-box .plabel{font-size:11px;font-weight:700;color:#ff7ac1;letter-spacing:0.4px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.prompt-box pre{font-family:var(--font);font-size:14px;font-weight:400;line-height:1.75;color:#f3f3f3;white-space:pre-wrap;word-break:break-word}
+.copy-btn{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:var(--r-pill);font-size:12px;font-weight:500;padding:6px 14px;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.copy-btn:hover{background:var(--primary);border-color:var(--primary)}
+.copy-btn.copied{background:#2e7d32;border-color:#2e7d32}
+.upload-note{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--accent-purple);background:#f3ecfc;border-radius:var(--r-pill);padding:7px 14px;margin-bottom:16px;width:fit-content}
+
+/* screenshots */
+.shots{display:flex;flex-direction:column;gap:16px;margin:18px 0}
+.shot{border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
+.shot .cap{display:flex;gap:9px;align-items:flex-start;font-size:12px;font-weight:300;color:var(--body);padding:11px 16px;background:var(--canvas-soft);border-bottom:1px solid var(--line);line-height:1.5}
+.shot .cap .badge{flex-shrink:0;font-size:10px;font-weight:700;color:var(--primary);background:#fff;border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+.shot a.imgwrap{display:block}
+.shot img{width:100%;background:#fafafa;transition:filter .15s}
+.shot a.imgwrap:hover img{filter:brightness(.97)}
+.shots.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.shots.two{grid-template-columns:1fr}}
+
+/* success checkpoint */
+.check{border:1px solid #ffd6ee;background:#fff6fb;border-radius:var(--r-card);padding:16px 20px;margin-top:18px}
+.check .ct{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.check ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.check li{font-size:14px;font-weight:300;line-height:1.6;color:var(--ink-soft);position:relative;padding-left:21px}
+.check li .ck{color:var(--primary);font-weight:700;position:absolute;left:0;top:0}
+
+/* tip */
+.tip{border-left:3px solid var(--accent-purple);background:var(--canvas-soft);border-radius:0 var(--r-md) var(--r-md) 0;padding:14px 18px;margin-top:16px;font-size:13px;font-weight:300;line-height:1.75;color:var(--ink-soft)}
+.tip b{font-weight:700;color:var(--accent-purple)}
+
+/* completion */
+.done{padding:70px 0}
+.done-surface{background:var(--brand-gradient);border-radius:var(--r-card-lg);padding:52px 48px;color:#fff;text-align:center}
+.done-surface .badge-grad{background:rgba(255,255,255,.18)}
+.done-surface h2{font-size:32px;font-weight:700;letter-spacing:-0.5px;line-height:1.3;margin-bottom:18px}
+.done-surface p{font-size:16px;font-weight:300;line-height:1.85;opacity:.95;max-width:600px;margin:0 auto 28px}
+.done-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:30px auto 0;max-width:760px}
+.done-grid .d{background:rgba(255,255,255,.13);border-radius:var(--r-card);padding:18px 14px}
+.done-grid .d .e{font-size:22px;margin-bottom:8px}
+.done-grid .d .t{font-size:13px;font-weight:500;line-height:1.4}
+.done .row{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:#fff;color:var(--primary);border-color:#fff}.btn-white:hover{filter:brightness(.96)}
+.btn-ghostw{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}.btn-ghostw:hover{border-color:#fff}
+
+/* footer */
+.foot{background:var(--footer);color:#fff;padding:48px 0 36px}
+.foot-bot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.foot .logo-f{display:flex;align-items:center;gap:10px;font-family:"Segoe UI","Segoe UI Variable Display",system-ui,-apple-system,Arial,sans-serif;font-weight:700;font-size:17px}
+.foot .logo-f .u{width:30px;height:30px;border-radius:9px;background:var(--brand-gradient);display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.foot .legal{font-size:12px;font-weight:300;color:#8a8a8a;line-height:1.8;margin-top:18px}
+.design-tag{font-size:12px;font-weight:500;color:#cfcfcf;display:flex;align-items:center;gap:8px}
+.design-tag .sw{display:inline-flex;gap:3px}
+.design-tag .sw i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+@media(max-width:1024px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .lab{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .rm-grid{grid-template-columns:repeat(2,1fr)}
+  .done-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:860px){
+  .nav-links{display:none}
+  .cardrow{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  :root{--gut:18px}
+  .hero{padding:48px 0}.hero h1{font-size:32px}
+  section{padding:46px 0}
+  .sec-head h2{font-size:25px}
+  .rm-grid{grid-template-columns:1fr}
+  .step-top{flex-wrap:wrap;gap:10px}.step-top .kind{margin-left:0}
+  .done-surface{padding:34px 22px}.done-surface h2{font-size:25px}
+  .done-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- Promo -->
+<div class="promo">
+  <div class="wrap">
+    <div>🧪 <b>Hands-on Lab</b> <span class="magenta">CEO 의사결정 브리프 자동화</span> — 직접 따라 하며 배우는 실습 교안</div>
+    <div><a href="../lguplus-copilot-proposal.html">← 메인으로</a></div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="wrap">
+    <a class="logo" href="../lguplus-copilot-proposal.html" aria-label="홈으로"><img class="uplusx" src="../brand/sk-x.svg" alt="SK ×" /><img class="cpmark" src="../brand/copilot-cowork-mark.png" alt="" /><span class="ms">Copilot Cowork</span><span class="tagsm">LAB</span></a>
+    <div class="nav-links">
+      <a href="#goal">실습 목표</a>
+      <a href="#roadmap">로드맵</a>
+      <a href="#m1">모듈 1</a>
+      <a href="#m4">스킬</a>
+      <a href="#m5">자동화</a>
+    </div>
+    <div class="nav-cta"><a href="#m1" class="btn btn-gradient btn-sm nav-lab">실습 시작 →</a></div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="goal">
+  <div class="wrap">
+    <div>
+      <span class="badge-grad"><span class="dot"></span>HANDS-ON LAB · 15 STEPS</span>
+      <h1>흩어진 데이터로<br><span class="accent">CEO 의사결정 브리프를</span><br>직접 자동화해 봅니다</h1>
+      <p class="lede">Cowork 실행부터 종합 분석·브리프 생성·브랜드 적용·스킬화·예약 자동화·멀티채널 발송까지. 화면을 그대로 따라 하면, 끝에는 <b>매일 아침 7시 자동으로 도착하는 임원 브리프</b>가 완성됩니다.</p>
+      <div class="hero-cta">
+        <a href="#m1" class="btn btn-primary">1단계부터 시작</a>
+        <a href="#roadmap" class="btn btn-outline">로드맵 먼저 보기</a>
+      </div>
+      <div class="lab-facts">
+        <div class="fact"><div class="k">소요 시간</div><div class="v">약 <span class="mg">30분</span></div></div>
+        <div class="fact"><div class="k">단계</div><div class="v">15 <span class="mg">steps</span></div></div>
+        <div class="fact"><div class="k">모듈</div><div class="v">5 <span class="mg">modules</span></div></div>
+        <div class="fact"><div class="k">난이도</div><div class="v">입문 <span class="mg">·</span> 따라하기</div></div>
+      </div>
+    </div>
+    <div class="goalbox">
+      <h4>이 실습을 마치면 만들어지는 것</h4>
+      <div class="gi"><span class="num">1</span><span>사내·외부 자료를 종합해 만든 <b>CEO 의사결정 브리프</b></span></div>
+      <div class="gi"><span class="num">2</span><span>SK 브랜드 디자인이 적용된 <b>PowerPoint 덱</b></span></div>
+      <div class="gi"><span class="num">3</span><span>재사용 가능한 <b>나만의 스킬 2종</b></span></div>
+      <div class="gi"><span class="num">4</span><span>매일 2회 자동 실행되는 <b>예약 작업</b></span></div>
+      <div class="gi"><span class="num">5</span><span>메일·Teams로 도착하는 <b>멀티채널 브리프</b></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- Prereqs -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">BEFORE YOU START</span>
+      <h2>준비물 체크</h2>
+      <p>아래 세 가지가 준비되어 있으면 바로 실습을 시작할 수 있습니다.</p>
+    </div>
+    <div class="cardrow">
+      <div class="icard"><div class="ic">🟣</div><h3>Copilot Cowork 접근</h3><p>Microsoft 365 Copilot(Premium) 환경에서 Cowork 에이전트에 접근할 수 있어야 합니다.</p><span class="chip">필수</span></div>
+      <div class="icard"><div class="ic">📂</div><h3>부문별 주간보고</h3><p>OneDrive / SharePoint의 "CEO 보고 자료" 폴더에 부문별 주간보고(PDF·PPTX·DOCX)가 있어야 합니다.</p><span class="chip">필수</span><a class="btn btn-outline btn-sm" href="files/LGUplus_weekly_reports.zip" download="SK_부문별_주간보고.zip" style="display:flex;margin-top:14px;width:fit-content;text-decoration:none">⬇ 보고서 ZIP 다운로드</a></div>
+      <div class="icard"><div class="ic">🎨</div><h3>브랜드 디자인 파일</h3><p>디자인 토큰을 정의한 <code>sk.md</code>(색·타이포·컴포넌트). 브랜드 적용 단계에서 업로드합니다.</p><span class="chip">모듈 3</span><a class="btn btn-outline btn-sm" href="designs/sk.md" download="sk.md" style="display:flex;margin-top:14px;width:fit-content;text-decoration:none">⬇ sk.md 다운로드</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section class="roadmap" id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ROADMAP</span>
+      <h2>다섯 개 모듈, 한 흐름</h2>
+      <p>탐색 → 분석 → 브랜딩 → 자산화 → 자동화. 각 모듈은 이전 결과 위에 쌓입니다.</p>
+    </div>
+    <div class="rm-grid">
+      <a href="#m1" class="rm"><div class="mno">MODULE 1</div><h4>시작 &amp; 탐색</h4><p>Cowork를 열고 무엇을 분석할 수 있는지 파악합니다.</p><div class="steps">STEP 1–2</div></a>
+      <a href="#m2" class="rm"><div class="mno">MODULE 2</div><h4>분석 &amp; 브리프</h4><p>종합 조회로 의견을 도출하고 의사결정 덱을 만듭니다.</p><div class="steps">STEP 3–5</div></a>
+      <a href="#m3" class="rm"><div class="mno">MODULE 3</div><h4>브랜드 적용</h4><p>디자인 가이드를 반영해 덱을 브랜드 톤으로 리스킨합니다.</p><div class="steps">STEP 6–7</div></a>
+      <a href="#m4" class="rm"><div class="mno">MODULE 4</div><h4>스킬로 자산화</h4><p>워크플로를 재사용 스킬로 저장하고 활용법을 익힙니다.</p><div class="steps">STEP 8–11</div></a>
+      <a href="#m5" class="rm"><div class="mno">MODULE 5</div><h4>자동화 &amp; 발송</h4><p>예약 작업으로 만들고 메일·Teams 도착을 확인합니다.</p><div class="steps">STEP 12–15</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LAB BODY ===== -->
+<div class="wrap">
+  <div class="lab">
+
+    <!-- TOC -->
+    <aside class="toc">
+      <h5>실습 단계</h5>
+      <ol>
+        <li class="mod">모듈 1 · 시작 &amp; 탐색</li>
+        <li><a href="#step-1" data-step>1. Cowork 실행</a></li>
+        <li><a href="#step-2" data-step>2. 데이터 범위 질문</a></li>
+        <li class="mod">모듈 2 · 분석 &amp; 브리프</li>
+        <li><a href="#step-3" data-step>3. 종합 조회 + 의견</a></li>
+        <li><a href="#step-4" data-step>4. PowerPoint 생성</a></li>
+        <li><a href="#step-5" data-step>5. 덱 미리보기</a></li>
+        <li class="mod">모듈 3 · 브랜드 적용</li>
+        <li><a href="#step-6" data-step>6. 디자인 가이드 반영</a></li>
+        <li><a href="#step-7" data-step>7. Before/After 비교</a></li>
+        <li class="mod">모듈 4 · 스킬로 자산화</li>
+        <li><a href="#step-8" data-step>8. 스킬 저장</a></li>
+        <li><a href="#step-9" data-step>9. 스킬 등록 확인</a></li>
+        <li><a href="#step-10" data-step>10. 스킬 상세</a></li>
+        <li><a href="#step-11" data-step>11. 활용 프롬프트</a></li>
+        <li class="mod">모듈 5 · 자동화 &amp; 발송</li>
+        <li><a href="#step-12" data-step>12. 예약 작업 등록</a></li>
+        <li><a href="#step-13" data-step>13. 메일 도착</a></li>
+        <li><a href="#step-14" data-step>14. Teams 도착</a></li>
+        <li><a href="#step-15" data-step>15. 예약 관리</a></li>
+      </ol>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- ============ MODULE 1 ============ -->
+      <div class="module" id="m1">
+        <div class="modhead">
+          <div class="mlabel">MODULE 1</div>
+          <h2>시작 &amp; 데이터 탐색</h2>
+          <p>Cowork를 실행하고, 내 어떤 데이터를 활용할 수 있는지 파악합니다. 본격적인 분석에 앞서 도구의 능력 범위를 확인하는 워밍업 단계입니다.</p>
+        </div>
+
+        <!-- STEP 1 -->
+        <div class="step" id="step-1">
+          <div class="step-top"><span class="sn">1</span><h3>Cowork 실행</h3><span class="kind action">화면 조작</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">Microsoft 365에서 <b>Cowork</b> 에이전트를 엽니다. 상단 모델 선택기에서 복잡한 작업에 적합한 <b>Claude Opus 4.8</b>을 선택해 둡니다.</div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">화면</span>Cowork 홈 — 모델 선택기, "마무리할 항목은 무엇인가요?" 입력창, 추천 카드</figcaption><a class="imgwrap" href="images/cowork/step-01-cowork-launch.png" target="_blank"><img src="images/cowork/step-01-cowork-launch.png" alt="Cowork 홈 화면" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>상단에 모델 선택기(Opus 4.8 / 자동 / Sonnet 4.6 / GPT 5.5)가 보입니다.</li>
+              <li><span class="ck">✓</span>중앙에 작업 입력창과 "다음에 이걸 시도해 보세요" 추천 카드가 표시됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step" id="step-2">
+          <div class="step-top"><span class="sn">2</span><h3>분석 가능한 데이터 범위 질문</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">아래 프롬프트를 입력해 Cowork가 어떤 데이터를 분석할 수 있는지 확인합니다.</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>내 어떤 데이터를 분석할 수 있어?</pre></div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">결과</span>분석 가능 데이터 범위 안내 — 메일·일정·Teams·회의록·파일·Power BI·조직 정보</figcaption><a class="imgwrap" href="images/cowork/step-02-data-analysis.png" target="_blank"><img src="images/cowork/step-02-data-analysis.png" alt="분석 가능 데이터 범위" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>이메일·일정·Teams·회의록·OneDrive/SharePoint·Power BI·조직 정보 범위를 안내합니다.</li>
+              <li><span class="ck">✓</span>Word·Excel·PowerPoint·PDF 산출물과 웹 검색·리서치 보고서 생성 가능도 함께 알려줍니다.</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ MODULE 2 ============ -->
+      <div class="module" id="m2">
+        <div class="modhead">
+          <div class="mlabel">MODULE 2</div>
+          <h2>종합 분석 &amp; 브리프 생성</h2>
+          <p>흩어진 사내·외부 자료를 한 번에 조회해 CEO 관점의 의견을 도출하고, 이를 의사결정 브리프(PowerPoint)로 만들어 미리봅니다. 이 실습의 핵심 단계입니다.</p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step" id="step-3">
+          <div class="step-top"><span class="sn">3</span><h3>종합 자료 조회 + 의견 제안</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">아래 프롬프트로 사내·외부 자료를 종합 조회하고, 지정한 관점·기준에 맞춘 의견 제안을 요청합니다. (Prompt Coach 활용)</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>나에 대해 볼 수 있는 자료들을 최대한 활용해서 아래와 같이 진행해줘.
+
+• 사내 데이터, 외부 소스 자료를 종합 조회
+  § OneDrive에 저장된 PDF 보고자료
+  § 채팅, 미팅을 통한 지시 사항
+  § 메일 및 일정
+• 지정된 관점 및 기준에 맞추어 의견 제안</pre></div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">진행</span>5단계 작업 계획 수립 + 병렬 자료 조회</figcaption><a class="imgwrap" href="images/cowork/step-03-comprehensive-search.png" target="_blank"><img src="images/cowork/step-03-comprehensive-search.png" alt="종합 조회 진행" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">결과</span>의견 제안 — 방향성 결정 + 짚어야 할 점 + 한 줄 결론</figcaption><a class="imgwrap" href="images/cowork/step-03-result.png" target="_blank"><img src="images/cowork/step-03-result.png" alt="의견 제안 결과" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>우측 작업 영역에 5단계 계획(문서 분석 → PDF 조회 → 채팅·미팅 → 메일·컨플루언스 → 의견 제안)이 표시됩니다.</li>
+              <li><span class="ck">✓</span>4개 부문 주간보고를 찾아 Teams·메일·컨플루언스를 병렬로 조회합니다.</li>
+              <li><span class="ck">✓</span>안건별 권고와 근거, 한 줄 결론이 정리되어 나옵니다.</li>
+            </ul></div>
+            <div class="tip"><b>포인트</b> — Cowork는 자료를 "찾는 척"이 아니라 실제로 병렬 조회합니다. 어디서 무엇을 찾았고 무엇이 비었는지 투명하게 밝히는 점을 확인하세요.</div>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step" id="step-4">
+          <div class="step-top"><span class="sn">4</span><h3>PowerPoint 의사결정 브리프 생성</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">앞 단계 결과에서 Cowork가 산출물 형태(1-pager Word / 의사결정 브리프 PowerPoint)를 제안합니다. <b>PowerPoint</b>를 선택합니다.</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>파워포인트가 좋겠다</pre></div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">진행</span>PowerPoint 프레젠테이션 작업 준비 시작</figcaption><a class="imgwrap" href="images/cowork/step-04-ppt-request.png" target="_blank"><img src="images/cowork/step-04-ppt-request.png" alt="PPT 작업 준비" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">결과</span>7장 구성 완성 — SK_CEO_의사결정_브리프_2026.pptx</figcaption><a class="imgwrap" href="images/cowork/step-04-ppt-result.png" target="_blank"><img src="images/cowork/step-04-ppt-result.png" alt="PPT 완성" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>7장(표지 / Executive Summary / KPI 스냅샷 / 의견①②③ / 종합 결론)으로 덱이 생성됩니다.</li>
+              <li><span class="ck">✓</span>우측 출력 영역에 <code>.pptx</code> 파일이 나타납니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step" id="step-5">
+          <div class="step-top"><span class="sn">5</span><h3>생성된 덱 미리보기</h3><span class="kind verify">확인</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">출력된 <code>.pptx</code> 파일을 클릭해 Cowork 내 분할 화면에서 슬라이드를 한 장씩 넘겨봅니다. (이때는 아직 <b>네이비 톤</b>입니다 — 7단계에서 비교합니다.)</div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">미리보기</span>슬라이드 5/7 "의견② 6/24 방향성 결정 3건" — 네이비 버전</figcaption><a class="imgwrap" href="images/cowork/step-05-ppt-preview.png" target="_blank"><img src="images/cowork/step-05-ppt-preview.png" alt="PPT 미리보기 네이비" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>좌측 채팅 / 우측 슬라이드 뷰어 분할 레이아웃으로 열립니다.</li>
+              <li><span class="ck">✓</span>안건이 카드형으로 권고안 + 권고 근거와 함께 표시됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ MODULE 3 ============ -->
+      <div class="module" id="m3">
+        <div class="modhead">
+          <div class="mlabel">MODULE 3</div>
+          <h2>브랜드 디자인 적용</h2>
+          <p>디자인 가이드(<code>sk.md</code>)를 업로드해, 방금 만든 덱을 SK 브랜드 톤으로 전면 리스킨합니다. 내용은 그대로 두고 시각만 바꾸는 것이 핵심입니다.</p>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="step" id="step-6">
+          <div class="step-top"><span class="sn">6</span><h3>디자인 가이드(md) 반영</h3><span class="kind prompt">프롬프트 + 업로드</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text"><code>sk.md</code> 파일을 첨부하면서 아래 프롬프트를 입력합니다.</div>
+            <div class="upload-note">📎 첨부: <a href="designs/sk.md" download style="color:inherit;text-decoration:underline">sk.md</a> (디자인 토큰 파일)</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>이 디자인 md 파일을 반영해서 파워포인트 업데이트해줘</pre></div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">1·업로드</span>sk.md 업로드 → 참조 영역 등록, 파일 읽기 시작</figcaption><a class="imgwrap" href="images/cowork/step-06-design-upload.png" target="_blank"><img src="images/cowork/step-06-design-upload.png" alt="디자인 업로드" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">2·적용</span>디자인 시스템 분석 후 브랜드 적용 진행</figcaption><a class="imgwrap" href="images/cowork/step-06-design-applying.png" target="_blank"><img src="images/cowork/step-06-design-applying.png" alt="브랜드 적용 중" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">3·완료</span>sk.md 기준 디자인 시스템 매핑 표</figcaption><a class="imgwrap" href="images/cowork/step-06-design-result.png" target="_blank"><img src="images/cowork/step-06-design-result.png" alt="디자인 적용 완료" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>강조색이 SK 레드(<code>#EA002C</code>) 단일로 교체되고 네이비 등 경쟁색이 제거됩니다.</li>
+              <li><span class="ck">✓</span>표지·결론에 레드→딥바이올렛(<code>#FF7A00</code>) 그라데이션이 적용됩니다.</li>
+              <li><span class="ck">✓</span>카드는 헤어라인 테두리·둥근 모서리(그림자 없음), 버튼·배지는 둥근 필로 바뀝니다.</li>
+            </ul></div>
+            <div class="tip"><b>참고</b> — 미리보기 환경에 한글 폰트가 없으면 글자가 네모로 보일 수 있으나, 실제 파일은 정상적으로 표시됩니다.</div>
+          </div>
+        </div>
+
+        <!-- STEP 7 -->
+        <div class="step" id="step-7">
+          <div class="step-top"><span class="sn">7</span><h3>Before / After 비교</h3><span class="kind verify">확인</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">업데이트된 덱을 다시 미리보기합니다. <b>5단계의 네이비 버전</b>과 같은 슬라이드를 비교하면 브랜드 적용 효과가 한눈에 보입니다.</div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">After·표지</span>레드→딥바이올렛 그라데이션 브랜드 표지</figcaption><a class="imgwrap" href="images/cowork/step-07-updated-preview-cover.png" target="_blank"><img src="images/cowork/step-07-updated-preview-cover.png" alt="After 표지" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">After·5/7</span>의견② — 레드 카드형으로 재디자인</figcaption><a class="imgwrap" href="images/cowork/step-07-updated-preview-slide5.png" target="_blank"><img src="images/cowork/step-07-updated-preview-slide5.png" alt="After 의견2" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>표지가 그라데이션 배경 + 흰 필 버튼(레드 글자)으로 바뀝니다.</li>
+              <li><span class="ck">✓</span>의견② 슬라이드의 3개 카드가 네이비→레드 헤더로 일관되게 통일됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ MODULE 4 ============ -->
+      <div class="module" id="m4">
+        <div class="modhead">
+          <div class="mlabel">MODULE 4</div>
+          <h2>스킬로 자산화</h2>
+          <p>방금 한 작업을 재사용 가능한 <b>스킬</b>로 저장합니다. 한 번 만들어 두면 다음부터는 한마디로 같은 워크플로를 재현할 수 있습니다.</p>
+        </div>
+
+        <!-- STEP 8 -->
+        <div class="step" id="step-8">
+          <div class="step-top"><span class="sn">8</span><h3>스킬로 저장하기</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">지금까지 한 작업 중 무엇을 스킬로 만들면 좋을지 제안받고, 저장합니다.</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>지금까지 한 일 중 어떤 것을 스킬로 저장하면 좋을까? 제안해 줘.</pre></div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">1·제안</span>스킬 제안 + 저장 선택 카드 (A / B / A+B)</figcaption><a class="imgwrap" href="images/cowork/step-08-skill-proposal.png" target="_blank"><img src="images/cowork/step-08-skill-proposal.png" alt="스킬 제안" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">2·생성</span>"A+B 둘 다" 선택 → 기술 관리로 생성 시작</figcaption><a class="imgwrap" href="images/cowork/step-08-skill-create.png" target="_blank"><img src="images/cowork/step-08-skill-create.png" alt="스킬 생성" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">3·검증</span>자동 검증·점수화 (A 74 / B 69), 충돌 0건</figcaption><a class="imgwrap" href="images/cowork/step-08-skill-validate.png" target="_blank"><img src="images/cowork/step-08-skill-validate.png" alt="스킬 검증" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">4·완료</span>스킬 2종 저장 완료, OneDrive에 ~35초 내 반영</figcaption><a class="imgwrap" href="images/cowork/step-08-skill-result.png" target="_blank"><img src="images/cowork/step-08-skill-result.png" alt="스킬 완료" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span><code>ceo-weekly-decision-brief</code>(74점)와 <code>brand-design-reskin</code>(69점) 두 스킬이 생성됩니다.</li>
+              <li><span class="ck">✓</span>구조 검증 PASS, 위임 규칙 명시로 충돌 0건, 둘 다 읽기 전용·저위험으로 분류됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 9 -->
+        <div class="step" id="step-9">
+          <div class="step-top"><span class="sn">9</span><h3>저장된 스킬 확인</h3><span class="kind action">화면 조작</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">Cowork 설정의 <b>[사용자 지정 &gt; 기술]</b> 화면으로 이동해 새 스킬이 "내 기술"에 등록되었는지 확인합니다.</div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">화면</span>내 기술에 brand-design-reskin · ceo-weekly-decision-brief 등록 확인</figcaption><a class="imgwrap" href="images/cowork/step-09-skills-registered.png" target="_blank"><img src="images/cowork/step-09-skills-registered.png" alt="스킬 등록 확인" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>"내 기술" 목록에 새 스킬 2종이 보입니다.</li>
+              <li><span class="ck">✓</span>하단 "기본 제공"에 PDF·Word·Excel 등 사전 설치 기술도 함께 표시됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 10 -->
+        <div class="step" id="step-10">
+          <div class="step-top"><span class="sn">10</span><h3>스킬 상세 정의 살펴보기</h3><span class="kind verify">확인</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">각 스킬을 클릭해 상세 정의(설명 / When NOT to Use / Inputs / Workflow)를 확인합니다. 스킬이 언제 쓰이고 언제 안 쓰이는지가 명확히 적혀 있습니다.</div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">스킬 A</span>ceo-weekly-decision-brief — 설명 / When NOT to Use / Inputs</figcaption><a class="imgwrap" href="images/cowork/step-10-skill-detail-ceo.png" target="_blank"><img src="images/cowork/step-10-skill-detail-ceo.png" alt="스킬 A 상세" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">스킬 B</span>brand-design-reskin — Workflow(토큰 파싱·단위 환산)</figcaption><a class="imgwrap" href="images/cowork/step-10-skill-detail-brand.png" target="_blank"><img src="images/cowork/step-10-skill-detail-brand.png" alt="스킬 B 상세" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>각 스킬에 트리거 조건, 제외 조건(다른 스킬로 위임), 입력·워크플로가 정의되어 있습니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 11 -->
+        <div class="step" id="step-11">
+          <div class="step-top"><span class="sn">11</span><h3>활용 프롬프트 샘플 받기</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">만든 스킬을 잘 부르는 예시 프롬프트를 받아 둡니다. 단독 사용과 조합 사용 예시를 모두 제공합니다.</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>이 스킬들을 잘 활용할 수 있는 프롬프트 샘플을 알려줘</pre></div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">결과</span>스킬별 프롬프트 샘플 + 두 스킬 조합 예시 + 팁</figcaption><a class="imgwrap" href="images/cowork/step-11-prompt-samples.png" target="_blank"><img src="images/cowork/step-11-prompt-samples.png" alt="프롬프트 샘플" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>기본형·기존 파일 지정·색폰트만·문서 적용 등 상황별 예시가 나옵니다.</li>
+              <li><span class="ck">✓</span>"브리프 생성 → 브랜드 적용"을 한 번에 하는 조합 프롬프트도 제시됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ MODULE 5 ============ -->
+      <div class="module" id="m5">
+        <div class="modhead">
+          <div class="mlabel">MODULE 5</div>
+          <h2>자동화 &amp; 멀티채널 발송</h2>
+          <p>마지막으로, 오늘 한 작업을 매일 자동 실행되는 예약 작업으로 만들고 결과를 메일·Teams로 받습니다. 실제로 도착했는지 두 채널에서 확인합니다.</p>
+        </div>
+
+        <!-- STEP 12 -->
+        <div class="step" id="step-12">
+          <div class="step-top"><span class="sn">12</span><h3>주기적 예약 작업으로 등록</h3><span class="kind prompt">프롬프트</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">오늘의 워크플로를 매일 2회 자동 실행하고 메일·Teams로 알리는 예약 작업으로 등록합니다.</div>
+            <div class="prompt-box"><div class="plabel">💬 프롬프트 입력</div><button class="copy-btn">복사</button><pre>오늘 한 작업을 아침 7시, 오전 12시에 한 번씩 주기적으로 돌려서 메일과 팀즈로 알려주는 작업으로 등록해줘</pre></div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">1·확인</span>"오전 12시"의 모호성(정오/자정)을 되묻고 명확화</figcaption><a class="imgwrap" href="images/cowork/step-12-schedule-clarify.png" target="_blank"><img src="images/cowork/step-12-schedule-clarify.png" alt="시간 확인" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">2·카드</span>되풀이 작업 확인 카드 — 매일 07:00·12:00</figcaption><a class="imgwrap" href="images/cowork/step-12-schedule-card.png" target="_blank"><img src="images/cowork/step-12-schedule-card.png" alt="예약 카드" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">3·예약</span>예약됨 등록 + 즉시 1회 실행 메일 확인 카드</figcaption><a class="imgwrap" href="images/cowork/step-12-schedule-result.png" target="_blank"><img src="images/cowork/step-12-schedule-result.png" alt="예약 완료" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">4·발송</span>메일 + Teams 양쪽 전송 완료</figcaption><a class="imgwrap" href="images/cowork/step-12-send-complete.png" target="_blank"><img src="images/cowork/step-12-send-complete.png" alt="발송 완료" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>"CEO 주간 의사결정 브리프 (1일 2회)"가 매일 07:00·12:00로 예약됩니다.</li>
+              <li><span class="ck">✓</span>즉시 1회 실행으로 메일(전체 표·근거)과 Teams(핵심 요약)가 모두 발송됩니다.</li>
+            </ul></div>
+            <div class="tip"><b>안전장치 포인트</b> — "오전 12시"를 임의로 가정하지 않고 되묻고, 메일 발송은 수신자 화이트리스트 + 발송 전 확인을 거칩니다. 자동화에도 사람의 통제가 남아 있습니다.</div>
+          </div>
+        </div>
+
+        <!-- STEP 13 -->
+        <div class="step" id="step-13">
+          <div class="step-top"><span class="sn">13</span><h3>Outlook에서 메일 도착 확인</h3><span class="kind verify">확인</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">Outlook을 열어 발송된 브리프 메일이 실제로 도착했는지 확인합니다.</div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">Outlook</span>[CEO 브리프] W24 메일 — 레드 톤 본문 + 결재 4건 표</figcaption><a class="imgwrap" href="images/cowork/step-13-outlook-arrival.png" target="_blank"><img src="images/cowork/step-13-outlook-arrival.png" alt="Outlook 도착" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>받은 편지함에 "[CEO 브리프] W24 주간 의사결정" 메일이 도착합니다.</li>
+              <li><span class="ck">✓</span>데이터 조회 결과·핵심 고민 5·의견①(결재 4건 표)·의견②가 표로 정리되어 있습니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 14 -->
+        <div class="step" id="step-14">
+          <div class="step-top"><span class="sn">14</span><h3>Teams에서 메시지 도착 확인</h3><span class="kind verify">확인</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">Teams 본인 채팅을 열어 핵심 요약 메시지가 도착했는지 확인합니다.</div>
+            <div class="shots">
+              <figure class="shot"><figcaption class="cap"><span class="badge">Teams</span>본인 채팅에 핵심 요약 브리프 (Sent by Copilot Cowork)</figcaption><a class="imgwrap" href="images/cowork/step-14-teams-arrival.png" target="_blank"><img src="images/cowork/step-14-teams-arrival.png" alt="Teams 도착" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>핵심 고민 5·의견①②·결론이 요약 형태로 도착합니다.</li>
+              <li><span class="ck">✓</span>"상세 표·근거는 이메일 참조"로, 메일=전체 / Teams=요약 역할 분담이 확인됩니다.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <!-- STEP 15 -->
+        <div class="step" id="step-15">
+          <div class="step-top"><span class="sn">15</span><h3>예약 작업 관리 확인</h3><span class="kind action">화면 조작</span></div>
+          <div class="step-body">
+            <div class="do-label"><span class="ico">▶</span>할 일</div>
+            <div class="do-text">Cowork <b>[예약됨 &gt; 일정 관리]</b>에서 등록된 작업과 상세(스케줄·안내·실행 이력)를 확인합니다. 여기서 직접 수정·즉시 실행도 할 수 있습니다.</div>
+            <div class="shots two">
+              <figure class="shot"><figcaption class="cap"><span class="badge">목록</span>예약됨 — 매일 07:00·12:00, 다음 실행 6/21 7:00 AM</figcaption><a class="imgwrap" href="images/cowork/step-15-scheduled-list.png" target="_blank"><img src="images/cowork/step-15-scheduled-list.png" alt="예약 목록" loading="lazy"></a></figure>
+              <figure class="shot"><figcaption class="cap"><span class="badge">상세</span>활성 토글 / 안내 / 실행 이력 / [지금 실행]</figcaption><a class="imgwrap" href="images/cowork/step-15-scheduled-detail.png" target="_blank"><img src="images/cowork/step-15-scheduled-detail.png" alt="예약 상세" loading="lazy"></a></figure>
+            </div>
+            <div class="check"><div class="ct">✓ 이렇게 되면 성공</div><ul>
+              <li><span class="ck">✓</span>예약 작업이 활성 상태로 표시되고 다음 실행 시각이 보입니다.</li>
+              <li><span class="ck">✓</span>오늘 즉시 실행한 이력이 실행 기록에 남아 있습니다.</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Completion -->
+<section class="done">
+  <div class="wrap">
+    <div class="done-surface">
+      <span class="badge-grad"><span class="dot"></span>LAB COMPLETE</span>
+      <h2>축하합니다 — 의사결정 자동화를 완성했습니다</h2>
+      <p>흩어진 데이터에서 출발해, 브랜드가 입혀진 브리프를 만들고, 그 과정을 스킬로 자산화한 뒤, 매일 자동으로 받아보는 파이프라인까지 직접 구축했습니다.</p>
+      <div class="done-grid">
+        <div class="d"><div class="e">🧭</div><div class="t">종합 분석 &amp;<br>의사결정 브리프</div></div>
+        <div class="d"><div class="e">🎨</div><div class="t">브랜드가 입혀진<br>PowerPoint 덱</div></div>
+        <div class="d"><div class="e">⚙️</div><div class="t">재사용 가능한<br>나만의 스킬 2종</div></div>
+        <div class="d"><div class="e">⏱</div><div class="t">매일 2회 자동<br>메일·Teams 발송</div></div>
+      </div>
+      <div class="row">
+        <a href="#goal" class="btn btn-white">처음부터 다시 보기</a>
+        <a href="../lguplus-copilot-proposal.html" class="btn btn-ghostw">메인 허브로 돌아가기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-bot">
+      <div>
+        <div class="logo-f"><img class="uplusf" src="../brand/sk.svg" alt="SK" /><img class="cpmark" src="../brand/copilot-cowork-mark.png" alt="" /> Copilot Cowork · Hands-on Lab</div>
+        <div class="legal">© 2026 Microsoft 365 Copilot Cowork · SK 실습 교안 — 모든 화면·수치는 데모 시연용 자료입니다.<br>실제 환경의 데이터·결과와 다를 수 있습니다.</div>
+      </div>
+      <div class="design-tag">
+        <span class="sw"><i style="background:#EA002C"></i><i style="background:#FF7A00"></i><i style="background:#1f1f1f"></i></span>
+        Design: SK (sk.md)
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// progress bar
+var pb=document.getElementById('progress');
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,b=document.body;
+  var st=h.scrollTop||b.scrollTop;
+  var sh=(h.scrollHeight||b.scrollHeight)-h.clientHeight;
+  pb.style.width=(sh>0?(st/sh*100):0)+'%';
+},{passive:true});
+
+// copy buttons
+document.querySelectorAll('.copy-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var pre=btn.parentElement.querySelector('pre');
+    var txt=pre?pre.innerText:'';
+    var done=function(){btn.textContent='복사됨 ✓';btn.classList.add('copied');setTimeout(function(){btn.textContent='복사';btn.classList.remove('copied');},1600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(function(){fallback(txt);done();});}
+    else{fallback(txt);done();}
+  });
+});
+function fallback(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
+
+// scroll-spy TOC
+var links=Array.prototype.slice.call(document.querySelectorAll('.toc a[data-step]'));
+var map={};links.forEach(function(a){var id=a.getAttribute('href').slice(1);map[id]=a;});
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      links.forEach(function(l){l.classList.remove('active');});
+      var a=map[en.target.id];if(a)a.classList.add('active');
+    }
+  });
+},{rootMargin:'-30% 0px -60% 0px',threshold:0});
+document.querySelectorAll('.step[id]').forEach(function(s){obs.observe(s);});
+</script>
+</body>
+</html>

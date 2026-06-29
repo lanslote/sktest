@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SK × Microsoft Copilot 실전 핸즈온 — Cowork & Copilot Studio</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+/* ============ SK Design Tokens (sk.md) ============ */
+:root{
+  --primary:#EA002C; --on-primary:#ffffff; --primary-deep:#FF7A00;
+  --grad-start:#EA002C; --grad-end:#FF7A00;
+  --accent-purple:#FF7A00; --accent-orange:#d44602; --accent-teal:#0a8a7f;
+  --ink:#000000; --ink-soft:#212529; --body:#666666; --mute:#aaaaaa;
+  --line:#eeeeee; --line-strong:#cccccc;
+  --canvas:#ffffff; --canvas-soft:#f5f5f5;
+  --footer:#1f1f1f; --footer-soft:#2d2926; --on-dark:#ffffff;
+  --brand-gradient:linear-gradient(150deg,#EA002C -18%,#FF7A00 87%);
+  --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Dotum",sans-serif;
+  --r-md:8px; --r-card:14px; --r-card-lg:16px; --r-pill:20px; --r-pill-lg:31px; --r-full:9999px;
+  --gut:32px; --maxw:1280px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--canvas);color:var(--ink);
+  -webkit-font-smoothing:antialiased;line-height:1.5;font-weight:400}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+
+/* ============ Promo bar ============ */
+.promo{background:var(--footer);color:var(--on-dark);font-size:13px;font-weight:300}
+.promo .wrap{display:flex;align-items:center;justify-content:space-between;
+  padding:9px var(--gut);min-height:38px}
+.promo b{font-weight:700}
+.promo .magenta{color:#ff6a5f}
+.promo-links{display:flex;gap:20px;color:#cfcfcf}
+.promo-links a:hover{color:#fff}
+
+/* ============ Nav ============ */
+.nav{background:var(--canvas);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:50}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--gut)}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:21px;letter-spacing:-0.4px;text-decoration:none;color:inherit;cursor:pointer}
+a.logo:hover .ms{color:var(--primary)}
+.nav-cta .nav-lab{font-weight:700}
+.logo .u{display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:11px;background:var(--brand-gradient);
+  color:#fff;font-size:18px;font-weight:800}
+.logo .x{color:var(--mute);font-weight:300;font-size:18px}
+.logo .ms{font-weight:600;color:var(--ink-soft);font-family:"Segoe UI","Segoe UI Variable Display",system-ui,-apple-system,Arial,sans-serif}
+.logo .cpmark{flex-shrink:0;display:block;height:28px;width:auto}.foot .logo-f .cpmark{flex-shrink:0;display:block;height:22px;width:auto}.logo .uplusx{flex-shrink:0;display:block;height:30px;width:auto}.foot .logo-f .uplusf{flex-shrink:0;display:block;height:24px;width:auto}
+.nav-links{display:flex;gap:30px;font-size:16px;font-weight:400}
+.nav-links a{color:var(--ink);transition:color .15s;position:relative;padding:4px 0}
+.nav-links a:hover{color:var(--primary)}
+.nav-cta{display:flex;align-items:center;gap:14px}
+
+/* ============ Buttons ============ */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font);
+  font-size:16px;font-weight:500;line-height:24px;padding:12px 32px;
+  border-radius:var(--r-pill);border:1px solid transparent;cursor:pointer;
+  transition:transform .12s ease,filter .15s ease,background .15s ease;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-gradient{background:var(--brand-gradient);color:#fff}
+.btn-gradient:hover{filter:brightness(1.07)}
+.btn-outline{background:var(--canvas);color:var(--primary);border-color:var(--primary)}
+.btn-outline:hover{background:#fff2ef}
+.btn-ghost{background:var(--canvas);color:var(--ink);border-color:var(--line-strong)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{padding:9px 22px;font-size:14px}
+.btn-white{background:#fff;color:var(--primary);border-color:#fff}
+.btn-white:hover{filter:brightness(.96)}
+
+/* ============ Generic section ============ */
+section{padding:72px 0}
+.eyebrow{display:inline-block;font-size:14px;font-weight:700;color:var(--primary);
+  letter-spacing:0.2px;margin-bottom:16px}
+.sec-head{text-align:center;max-width:760px;margin:0 auto 52px}
+.sec-head h2{font-size:34px;font-weight:700;line-height:1.32;letter-spacing:-0.4px}
+.sec-head p{margin-top:18px;font-size:17px;font-weight:300;line-height:1.85;color:var(--body)}
+
+/* ============ Hands-on tracks (hub) ============ */
+.track-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.track{border:1px solid var(--line);border-radius:var(--r-card-lg);padding:30px 26px;display:flex;flex-direction:column;transition:border-color .15s ease,transform .18s ease}
+.track:hover{border-color:var(--primary);transform:translateY(-4px)}
+.track-icon{width:52px;height:52px;border-radius:14px;background:var(--brand-gradient);display:inline-flex;align-items:center;justify-content:center;font-size:25px;margin-bottom:22px}
+.track .teyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--primary);letter-spacing:0.3px;margin-bottom:14px}
+.track .teyebrow .st{font-size:10px;font-weight:700;color:#fff;background:var(--brand-gradient);padding:2px 10px;border-radius:var(--r-pill);letter-spacing:0.2px}
+.track .teyebrow .st.new{background:var(--accent-purple)}
+.track .teyebrow .st.scn{background:var(--accent-teal)}
+.track h3{font-size:22px;font-weight:700;letter-spacing:-0.4px;line-height:1.3}
+.track .tsub{font-size:14px;font-weight:500;color:var(--primary);margin-top:7px}
+.track .tdesc{font-size:15px;font-weight:300;line-height:1.85;color:var(--body);margin-top:16px}
+.track ul{list-style:none;margin:20px 0 0;display:flex;flex-direction:column;gap:10px}
+.track ul li{font-size:14px;font-weight:300;line-height:1.5;color:var(--ink-soft);display:flex;gap:10px;align-items:flex-start}
+.track ul li .ck{color:var(--primary);font-weight:700;flex-shrink:0}
+.track .tmeta{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;font-weight:500;color:var(--mute);letter-spacing:0.3px}
+.track .tcta{margin-top:18px}
+
+/* ============ Hero ============ */
+.hero{padding:84px 0 76px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center}
+.badge-grad{display:inline-flex;align-items:center;gap:8px;background:var(--brand-gradient);
+  color:#fff;font-size:13px;font-weight:700;padding:8px 16px;border-radius:var(--r-pill);
+  letter-spacing:0.2px;margin-bottom:26px}
+.badge-grad .dot{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9}
+.hero h1{font-size:48px;font-weight:700;line-height:1.22;letter-spacing:-0.8px;color:var(--ink)}
+.hero h1 .accent{background:var(--brand-gradient);-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.hero .lede{margin-top:24px;font-size:18px;font-weight:300;line-height:1.9;color:var(--body);max-width:520px}
+.hero-cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+.hero-meta{margin-top:30px;display:flex;gap:26px;flex-wrap:wrap;font-size:13px;color:var(--mute);font-weight:300}
+.hero-meta span{display:flex;align-items:center;gap:7px}
+.hero-meta b{color:var(--ink-soft);font-weight:700}
+
+/* Hero preview card on gradient */
+.preview{background:var(--brand-gradient);border-radius:var(--r-card-lg);
+  padding:30px;color:#fff;position:relative}
+.preview-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.preview-top .tag{font-size:12px;font-weight:700;background:rgba(255,255,255,.18);
+  padding:5px 12px;border-radius:var(--r-pill);backdrop-filter:blur(4px)}
+.preview-top .live{font-size:11px;font-weight:300;opacity:.85;display:flex;align-items:center;gap:6px}
+.preview-top .live i{width:6px;height:6px;border-radius:50%;background:#7CFFB0;display:inline-block;
+  box-shadow:0 0 0 0 rgba(124,255,176,.7);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(124,255,176,.6)}70%{box-shadow:0 0 0 7px rgba(124,255,176,0)}100%{box-shadow:0 0 0 0 rgba(124,255,176,0)}}
+.preview h3{font-size:21px;font-weight:700;letter-spacing:-0.3px;margin-bottom:4px}
+.preview .sub{font-size:12px;font-weight:300;opacity:.85;margin-bottom:20px}
+.preview-card{background:rgba(255,255,255,.97);border-radius:12px;padding:18px;color:var(--ink)}
+.pc-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;
+  border-bottom:1px solid var(--line);font-size:13px}
+.pc-row:last-child{border-bottom:0}
+.pc-row .label{font-weight:300;color:var(--ink-soft)}
+.pc-row .amt{font-weight:300;color:var(--body);font-size:12px}
+.pc-row .v{font-weight:700;font-size:12px;padding:3px 10px;border-radius:var(--r-pill)}
+.v.go{color:var(--primary);background:#fff2ef}
+.v.cond{color:var(--accent-orange);background:#fdeee6}
+.preview-foot{margin-top:16px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:300;opacity:.9}
+.preview-foot .ch{background:rgba(255,255,255,.16);padding:4px 10px;border-radius:var(--r-pill);font-weight:500}
+
+/* ============ Stats band ============ */
+.stats{background:var(--canvas-soft);padding:52px 0}
+.stats .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stat .num{font-size:42px;font-weight:700;letter-spacing:-1px;
+  background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;line-height:1.1}
+.stat .lab{margin-top:10px;font-size:14px;font-weight:300;color:var(--body);line-height:1.6}
+
+/* ============ Category tiles ============ */
+.tiles .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tile{border-radius:var(--r-card-lg);padding:26px;min-height:240px;color:#fff;
+  display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
+  transition:transform .18s ease}
+.tile:hover{transform:translateY(-4px)}
+.tile .k{font-size:12px;font-weight:700;opacity:.85;letter-spacing:0.3px}
+.tile h3{font-size:24px;font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-top:10px}
+.tile p{font-size:13px;font-weight:300;line-height:1.7;opacity:.92;margin-top:12px}
+.tile .arrow{font-size:20px;align-self:flex-end;opacity:.9}
+.tile .glyph{position:absolute;right:-10px;top:-10px;font-size:90px;opacity:.12;font-weight:800}
+.tile.dark{background:var(--footer)}
+.tile.purple{background:var(--accent-purple)}
+.tile.orange{background:var(--accent-orange)}
+.tile.grad{background:var(--brand-gradient)}
+
+/* ============ Workflow ============ */
+.flow{background:var(--canvas)}
+.flow .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:28px;transition:border-color .15s ease}
+.step:hover{border-color:var(--primary)}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
+  border-radius:var(--r-full);background:#fff2ef;color:var(--primary);font-weight:700;font-size:17px;margin-bottom:18px}
+.step h3{font-size:19px;font-weight:700;letter-spacing:-0.2px;margin-bottom:10px}
+.step h3 .chip{font-size:12px;font-weight:700;color:var(--primary);margin-left:8px}
+.step p{font-size:14px;font-weight:300;line-height:1.8;color:var(--body)}
+.step .src{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+.step .src span{font-size:11px;font-weight:500;background:var(--canvas-soft);color:var(--body);
+  padding:4px 10px;border-radius:6px}
+
+/* ============ Gradient feature surface ============ */
+.feature{padding:64px 0}
+.feature-surface{background:var(--brand-gradient);border-radius:var(--r-card-lg);
+  padding:56px 48px;color:#fff;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+.feature-surface .ey{font-size:13px;font-weight:700;opacity:.9;margin-bottom:16px;letter-spacing:0.3px}
+.feature-surface h2{font-size:30px;font-weight:700;line-height:1.45;letter-spacing:-0.4px}
+.feature-surface h2 em{font-style:normal;background:rgba(255,255,255,.22);padding:0 8px;border-radius:6px}
+.feature-surface .right{text-align:right}
+.feature-surface .right .big{font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1}
+.feature-surface .right .cap{font-size:14px;font-weight:300;opacity:.9;margin-top:10px;line-height:1.7}
+
+/* ============ Tiers ============ */
+.tiers .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.tier{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r-card-lg);
+  padding:34px 30px;display:flex;flex-direction:column}
+.tier.feat{background:var(--brand-gradient);color:#fff;border-color:transparent}
+.tier .badge{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:14px}
+.tier.feat .badge{color:#fff;background:rgba(255,255,255,.2);display:inline-block;
+  width:fit-content;padding:4px 12px;border-radius:var(--r-pill)}
+.tier h3{font-size:24px;font-weight:700;letter-spacing:-0.3px;margin-bottom:6px}
+.tier .desc{font-size:13px;font-weight:300;line-height:1.7;color:var(--body);margin-bottom:22px}
+.tier.feat .desc{color:rgba(255,255,255,.9)}
+.tier ul{list-style:none;margin:0 0 26px;display:flex;flex-direction:column;gap:13px;flex-grow:1}
+.tier li{font-size:14px;font-weight:300;line-height:1.5;display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft)}
+.tier.feat li{color:#fff}
+.tier li .ck{color:var(--primary);font-weight:700;flex-shrink:0}
+.tier.feat li .ck{color:#fff}
+
+/* ============ Data table ============ */
+.tbl-sec{background:var(--canvas-soft)}
+.tbl-card{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r-card-lg);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--canvas-soft);text-align:left;font-size:13px;font-weight:700;
+  color:var(--ink-soft);padding:14px 20px;border-bottom:1px solid var(--line)}
+tbody td{font-size:14px;font-weight:300;color:var(--ink-soft);padding:16px 20px;border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+tbody td .ag{font-weight:700;color:var(--ink)}
+.pill-v{font-size:12px;font-weight:700;padding:4px 12px;border-radius:var(--r-pill);white-space:nowrap}
+.pill-v.go{color:var(--primary);background:#fff2ef}
+.pill-v.cond{color:var(--accent-orange);background:#fdeee6}
+.pill-v.hold{color:var(--body);background:var(--canvas-soft);border:1px solid var(--line)}
+
+/* ============ Closing CTA ============ */
+.cta{padding:84px 0}
+.cta-inner{text-align:center;max-width:680px;margin:0 auto}
+.cta h2{font-size:38px;font-weight:700;letter-spacing:-0.6px;line-height:1.3}
+.cta p{margin-top:20px;font-size:17px;font-weight:300;color:var(--body);line-height:1.85}
+.cta .row{margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ============ Footer ============ */
+.foot{background:var(--footer);color:var(--on-dark);padding:56px 0 40px}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;padding-bottom:36px;
+  border-bottom:1px solid #3a3a3a}
+.foot .logo-f{display:flex;align-items:center;gap:10px;font-family:"Segoe UI","Segoe UI Variable Display",system-ui,-apple-system,Arial,sans-serif;font-weight:700;font-size:18px;margin-bottom:16px}
+.foot .logo-f .u{width:32px;height:32px;border-radius:9px;background:var(--brand-gradient);
+  display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800}
+.foot .blurb{font-size:13px;font-weight:300;line-height:1.85;color:#b8b8b8;max-width:330px}
+.foot h4{font-size:13px;font-weight:700;margin-bottom:16px;color:#fff}
+.foot ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.foot ul a{font-size:13px;font-weight:300;color:#b8b8b8;transition:color .15s}
+.foot ul a:hover{color:#fff}
+.foot-bot{display:flex;align-items:center;justify-content:space-between;padding-top:26px;flex-wrap:wrap;gap:14px}
+.foot-bot .legal{font-size:12px;font-weight:300;color:#8a8a8a;line-height:1.8}
+.design-tag{font-size:12px;font-weight:500;color:#cfcfcf;display:flex;align-items:center;gap:8px}
+.design-tag .sw{display:inline-flex;gap:3px}
+.design-tag .sw i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* ============ Responsive ============ */
+@media(max-width:1024px){
+  .hero .wrap{grid-template-columns:1fr;gap:44px}
+  .tiles .grid{grid-template-columns:repeat(2,1fr)}
+  .feature-surface{grid-template-columns:1fr;gap:28px}
+  .feature-surface .right{text-align:left}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  #tracks .track-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+  .nav-links{display:none}
+  .stats .grid{grid-template-columns:repeat(2,1fr);gap:32px 16px}
+  .flow .grid{grid-template-columns:1fr}
+  .tiers .grid{grid-template-columns:1fr}
+  .promo-links{display:none}
+}
+@media(max-width:560px){
+  :root{--gut:20px}
+  .hero h1{font-size:34px}
+  .hero{padding:54px 0}
+  section{padding:54px 0}
+  #tracks .track-grid{grid-template-columns:1fr}
+  .sec-head h2{font-size:27px}
+  .tiles .grid{grid-template-columns:1fr}
+  .feature-surface{padding:36px 26px}
+  .feature-surface .right .big{font-size:46px}
+  .cta h2{font-size:29px}
+  .foot-grid{grid-template-columns:1fr}
+  table{font-size:12px}
+  thead th,tbody td{padding:12px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- Promo bar -->
+<div class="promo" id="top">
+  <div class="wrap">
+    <div>✨ <b>SK × Microsoft Copilot</b> <span class="magenta">실전 핸즈온 데모</span> — Cowork & Copilot Studio</div>
+    <div class="promo-links">
+      <a href="#contact">데모 문의</a>
+      <a href="#security">보안 백서</a>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="홈으로">
+      <img class="uplusx" src="brand/sk-x.svg" alt="SK ×" />
+      <img class="cpmark" src="brand/copilot-mark.png" alt="" />
+      <span class="ms">Copilot</span>
+    </a>
+    <div class="nav-links">
+      <a href="#tracks">실습 트랙</a>
+      <a href="#workflow">워크플로</a>
+      <a href="#impact">도입 효과</a>
+      <a href="#tiers">도입 옵션</a>
+      <a href="#security">보안</a>
+      <a href="#contact">데모 요청</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#tracks" class="btn btn-gradient btn-sm nav-lab">실습 트랙 →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="badge-grad"><span class="dot"></span>SK × Microsoft Copilot · 실전 핸즈온</span>
+      <h1>읽는 제안서가 아니라,<br><span class="accent">직접 만지는 데모.</span></h1>
+      <p class="lede">Copilot <b>Cowork</b>로 임원 의사결정 브리프를 자동화하고, Copilot <b>Studio</b>로 나만의 AI 에이전트를 만들어 게시합니다. 세 가지 실전 시나리오를 화면 그대로 따라 하세요.</p>
+      <div class="hero-cta">
+        <a href="#tracks" class="btn btn-primary">세 트랙 시작하기 ↓</a>
+        <a href="#contact" class="btn btn-outline">도입 상담</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>3개</b> 실전 트랙</span>
+        <span><b>25</b> 실습 단계</span>
+        <span><b>노코드</b>부터 시작</span>
+      </div>
+    </div>
+
+    <!-- Gradient preview card -->
+    <div class="preview">
+      <div class="preview-top">
+        <span class="tag">실전 핸즈온 트랙</span>
+        <span class="live"><i></i>3 TRACKS</span>
+      </div>
+      <a href="lab/lguplus-copilot-cowork-hands-on-lab.html" style="display:block;background:rgba(255,255,255,.97);border-radius:12px;padding:17px 18px;color:var(--ink);margin-bottom:13px;transition:transform .15s ease" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:0.3px">TRACK 1 · COWORK</div>
+        <div style="font-size:16px;font-weight:700;margin-top:5px;letter-spacing:-0.3px">임원 의사결정 브리프 자동화</div>
+        <div style="font-size:12px;font-weight:300;color:var(--body);margin-top:6px">15 steps · 5 modules · 약 30분 &nbsp;→</div>
+      </a>
+      <a href="lab/lguplus-copilot-studio-hands-on-lab.html" style="display:block;background:rgba(255,255,255,.97);border-radius:12px;padding:17px 18px;color:var(--ink);margin-bottom:13px;transition:transform .15s ease" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:11px;font-weight:700;color:var(--accent-purple);letter-spacing:0.3px">TRACK 2 · STUDIO</div>
+        <div style="font-size:16px;font-weight:700;margin-top:5px;letter-spacing:-0.3px">커스텀 AI 에이전트 구축</div>
+        <div style="font-size:12px;font-weight:300;color:var(--body);margin-top:6px">10 steps · 5 modules · 약 30분 &nbsp;→</div>
+      </a>
+      <a href="lab/lguplus-copilot-studio-ceo-briefing-scenario.html" style="display:block;background:rgba(255,255,255,.97);border-radius:12px;padding:17px 18px;color:var(--ink);transition:transform .15s ease" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:11px;font-weight:700;color:var(--accent-teal);letter-spacing:0.3px">TRACK 3 · 시나리오</div>
+        <div style="font-size:16px;font-weight:700;margin-top:5px;letter-spacing:-0.3px">CEO 의사결정 브리핑 에이전트</div>
+        <div style="font-size:12px;font-weight:300;color:var(--body);margin-top:6px">3 구현 방안 · 데모 3단 &nbsp;→</div>
+      </a>
+      <div class="preview-foot">
+        <span>배포 →</span>
+        <span class="ch">✉ Outlook</span>
+        <span class="ch">💬 Teams</span>
+        <span class="ch">🤖 M365 Copilot</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hands-on Tracks (hub) -->
+<section id="tracks">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">HANDS-ON TRACKS</span>
+      <h2>세 개의 실전 트랙에서 시작하세요</h2>
+      <p>각 트랙은 화면을 그대로 따라 하는 단계별 실습 교안입니다. 복사용 프롬프트·실제 화면·성공 체크포인트가 모두 담겨 있습니다.</p>
+    </div>
+    <div class="track-grid">
+
+      <article class="track">
+        <div class="track-icon">📊</div>
+        <div class="teyebrow">TRACK 1 · COPILOT COWORK <span class="st">완성</span></div>
+        <h3>임원 의사결정 브리프 자동화</h3>
+        <div class="tsub">Microsoft 365 Copilot · Cowork</div>
+        <p class="tdesc">사내·외부 데이터를 종합 조회해 CEO 관점의 주간 의사결정 브리프를 자동 생성하고, 브랜드를 입혀 매일 정해진 시각에 메일·Teams로 발송합니다.</p>
+        <ul>
+          <li><span class="ck">✓</span>데이터 종합 분석 &amp; 1-페이지 브리프 생성</li>
+          <li><span class="ck">✓</span>브랜드 디자인(sk.md) 자동 적용</li>
+          <li><span class="ck">✓</span>반복 작업의 스킬(Skill)화</li>
+          <li><span class="ck">✓</span>예약 자동화 &amp; 멀티채널 발송</li>
+        </ul>
+        <div class="tmeta">15 STEPS · 5 MODULES · 약 30분</div>
+        <div class="tcta"><a href="lab/lguplus-copilot-cowork-hands-on-lab.html" class="btn btn-gradient">Cowork 실습 시작 →</a></div>
+      </article>
+
+      <article class="track">
+        <div class="track-icon">🛠️</div>
+        <div class="teyebrow">TRACK 2 · COPILOT STUDIO <span class="st new">NEW</span></div>
+        <h3>커스텀 AI 에이전트 구축</h3>
+        <div class="tsub">Microsoft Copilot Studio</div>
+        <p class="tdesc">자연어 설명만으로 사내 지식을 학습한 맞춤형 에이전트를 만들고, 실제 시스템과 연동해 Teams·웹·M365 Copilot에 코드 없이 배포합니다.</p>
+        <ul>
+          <li><span class="ck">✓</span>자연어로 에이전트 생성(노코드)</li>
+          <li><span class="ck">✓</span>사내 지식 연결 &amp; 출처 기반 답변</li>
+          <li><span class="ck">✓</span>액션(Action)으로 실제 업무 처리</li>
+          <li><span class="ck">✓</span>Teams·M365 Copilot에 게시·배포</li>
+        </ul>
+        <div class="tmeta">10 STEPS · 5 MODULES · 약 30분</div>
+        <div class="tcta"><a href="lab/lguplus-copilot-studio-hands-on-lab.html" class="btn btn-gradient">Copilot Studio 실습 →</a></div>
+      </article>
+
+      <article class="track">
+        <div class="track-icon">📋</div>
+        <div class="teyebrow">TRACK 3 · CEO 브리핑 시나리오 <span class="st scn">설계</span></div>
+        <h3>CEO 의사결정 브리핑 에이전트</h3>
+        <div class="tsub">Copilot Studio · 시나리오 설계 &amp; 구현 방안</div>
+        <p class="tdesc">매일 아침 7시, 그날의 보고 자료를 읽어 요약·Talking Point·칭찬·지적을 Teams로 먼저 브리핑하고, 후속 질문에는 이전 회의록·타 보고까지 종합해 답하는 시나리오와 3가지 구현 방안.</p>
+        <ul>
+          <li><span class="ck">✓</span>자동 브리핑(Push) + 이어지는 대화(Pull)</li>
+          <li><span class="ck">✓</span>트리거→분석→발신 동작 흐름</li>
+          <li><span class="ck">✓</span>구현 방안 3가지 비교(New·Classic·Scout)</li>
+          <li><span class="ck">✓</span>데모 시나리오 3단 제안</li>
+        </ul>
+        <div class="tmeta">3 구현 방안 · 29단계 핸즈온 + Scout(3′) · 설계 가이드</div>
+        <div class="tcta" style="display:flex;gap:10px;flex-wrap:wrap"><a href="lab/lguplus-copilot-studio-scenario3-ceo-staff-agent-hands-on-lab.html" class="btn btn-gradient">시나리오 3 핸즈온 →</a><a href="lab/lguplus-copilot-studio-ceo-briefing-scenario.html" class="btn btn-outline">시나리오 설계 보기</a></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats" id="overview" style="padding:52px 0">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat"><div class="num">6시간 → 35초</div><div class="lab">주간 의사결정 브리프<br>작성 소요 시간</div></div>
+      <div class="stat"><div class="num">100%</div><div class="lab">출처 추적 · 수치 날조<br>0건 (가드레일 적용)</div></div>
+      <div class="stat"><div class="num">2채널</div><div class="lab">메일 · Teams<br>멀티채널 동시 발송</div></div>
+      <div class="stat"><div class="num">2회/일</div><div class="lab">07:00 · 12:00<br>예약 자동 실행</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Category tiles -->
+<section class="tiles">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">WHAT IT DOES</span>
+      <h2>하나의 워크스페이스가<br>네 가지 일을 대신합니다</h2>
+      <p>흩어진 사내·외부 데이터를 모으고, 경영진 관점으로 판단하고, 브랜드에 맞춰 다듬어, 알아서 전달합니다.</p>
+    </div>
+    <div class="grid">
+      <div class="tile dark">
+        <span class="glyph">🔎</span>
+        <div><div class="k">01 · 종합 조회</div><h3>흩어진 자료를<br>한 번에 수집</h3>
+        <p>OneDrive PDF·SharePoint 보고서, Teams·미팅 지시, 메일·컨플루언스를 병렬로 조회.</p></div>
+        <span class="arrow">→</span>
+      </div>
+      <div class="tile purple">
+        <span class="glyph">🧭</span>
+        <div><div class="k">02 · 의견 제안</div><h3>CEO 관점으로<br>구조화·판단</h3>
+        <p>수익성·성장·자원배분·규제 4축으로 안건별 승인/조건부/보류 의견을 근거와 함께.</p></div>
+        <span class="arrow">→</span>
+      </div>
+      <div class="tile orange">
+        <span class="glyph">🎨</span>
+        <div><div class="k">03 · 브랜드 덱</div><h3>브랜드에 맞춘<br>의사결정 덱</h3>
+        <p>디자인 가이드(.md)를 읽어 SK 브랜드 톤으로 PowerPoint를 자동 리스킨.</p></div>
+        <span class="arrow">→</span>
+      </div>
+      <div class="tile grad">
+        <span class="glyph">⏱</span>
+        <div><div class="k">04 · 자동화</div><h3>예약 실행 &<br>멀티채널 알림</h3>
+        <p>매일 정해진 시각에 자동 실행하여 메일·Teams로 브리프를 본인에게 전달.</p></div>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Workflow -->
+<section class="flow" id="workflow">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">HOW IT WORKS</span>
+      <h2>여섯 단계로 완성되는<br>의사결정 브리프</h2>
+      <p>한 번의 지시로 조회부터 발송까지 끝납니다. 각 단계는 재사용 가능한 스킬로 저장됩니다.</p>
+    </div>
+    <div class="grid">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>종합 자료 조회</h3>
+        <p>부문별 주간보고와 사내·외부 소스를 동시에 조회해 근거 데이터를 확보합니다.</p>
+        <div class="src"><span>OneDrive</span><span>SharePoint</span><span>Teams</span><span>Outlook</span><span>Confluence</span></div>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3>CEO 관점 의견 제안</h3>
+        <p>수익성·성장·자원배분·규제 4축 관점으로 안건별 의견을 근거·출처와 함께 제시합니다.</p>
+        <div class="src"><span>승인</span><span>조건부</span><span>보류</span><span>근거·출처</span></div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>의사결정 브리프 생성</h3>
+        <p>표지·요약·KPI·의견·결론으로 구성된 임원용 브리프를 PowerPoint로 산출합니다.</p>
+        <div class="src"><span>PowerPoint</span><span>Word</span><span>7-슬라이드</span></div>
+      </div>
+      <div class="step">
+        <div class="n">4</div>
+        <h3>브랜드 디자인 리스킨</h3>
+        <p>디자인 토큰(.md)을 읽어 색·타이포·카드·버튼을 브랜드 시스템으로 일괄 교체합니다.</p>
+        <div class="src"><span>SK 레드</span><span>그라데이션</span><span>내용 불변</span></div>
+      </div>
+      <div class="step">
+        <div class="n">5</div>
+        <h3>스킬로 저장</h3>
+        <p>이 워크플로를 재사용 가능한 스킬로 저장해 다음부터 한마디로 재현합니다.</p>
+        <div class="src"><span>재사용</span><span>자동 검증</span><span>충돌 0건</span></div>
+      </div>
+      <div class="step">
+        <div class="n">6</div>
+        <h3>예약 자동화 · 발송</h3>
+        <p>매일 07:00·12:00 자동 실행하고 결과를 메일·Teams로 전달합니다.</p>
+        <div class="src"><span>스케줄</span><span>메일</span><span>Teams</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gradient feature surface -->
+<section class="feature" id="impact">
+  <div class="wrap">
+    <div class="feature-surface">
+      <div class="left">
+        <div class="ey">한 줄 결론</div>
+        <h2>"단기 방어는 <em>선택과 집중</em>으로 최소화하고,<br>자원을 <em>AI·공급안정·신뢰</em>라는 비가격 경쟁력에 실어 판을 바꾼다."</h2>
+      </div>
+      <div class="right">
+        <div class="big">90%↓</div>
+        <div class="cap">임원 보고 준비에 드는 반복 작업 시간을<br>줄이고, 의사결정에 집중하는 시간으로.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tiers -->
+<section class="tiers" id="tiers">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">ADOPTION</span>
+      <h2>규모에 맞춰 단계적으로</h2>
+      <p>파일럿으로 가치를 검증하고, 표준 도입으로 확장하고, 전사로 정착시킵니다.</p>
+    </div>
+    <div class="grid">
+      <div class="tier">
+        <div class="badge">PILOT</div>
+        <h3>파일럿</h3>
+        <p class="desc">단일 임원·단일 부문으로 2주 검증.</p>
+        <ul>
+          <li><span class="ck">✓</span>주간 의사결정 브리프 1종</li>
+          <li><span class="ck">✓</span>메일 발송 자동화</li>
+          <li><span class="ck">✓</span>기본 스킬 2종 제공</li>
+          <li><span class="ck">✓</span>온보딩 워크숍 1회</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline">파일럿 신청</a>
+      </div>
+      <div class="tier feat">
+        <div class="badge">권장</div>
+        <h3>표준 도입</h3>
+        <p class="desc">경영진 단위 멀티채널 자동화.</p>
+        <ul>
+          <li><span class="ck">✓</span>다부문 종합 브리프</li>
+          <li><span class="ck">✓</span>메일 · Teams 동시 발송</li>
+          <li><span class="ck">✓</span>브랜드 디자인 리스킨</li>
+          <li><span class="ck">✓</span>예약 자동 실행 (2회/일)</li>
+          <li><span class="ck">✓</span>맞춤 스킬 구축</li>
+        </ul>
+        <a href="#contact" class="btn btn-white">도입 상담</a>
+      </div>
+      <div class="tier">
+        <div class="badge">ENTERPRISE</div>
+        <h3>전사 정착</h3>
+        <p class="desc">조직 전반 스킬·거버넌스 통합.</p>
+        <ul>
+          <li><span class="ck">✓</span>전 부문 스킬 라이브러리</li>
+          <li><span class="ck">✓</span>보안·거버넌스 통합</li>
+          <li><span class="ck">✓</span>출처 추적·감사 로그</li>
+          <li><span class="ck">✓</span>전담 지원·SLA</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">문의하기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Data table -->
+<section class="tbl-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">SAMPLE OUTPUT</span>
+      <h2>실제 브리프는 이렇게 도착합니다</h2>
+      <p>모든 수치는 보고서 원본 값만 사용하고, 누락 시 "확인 필요"로 표시합니다. 근거와 출처가 함께 따라옵니다.</p>
+    </div>
+    <div class="tbl-card">
+      <table>
+        <thead>
+          <tr><th>안건</th><th>규모</th><th>의견</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ag">GPU 전용화</span></td>
+            <td>160억</td>
+            <td><span class="pill-v go">즉시 승인</span></td>
+            <td>회수 11개월 · 단가 −35% · 이익률 8.1→9.2%</td>
+          </tr>
+          <tr>
+            <td><span class="ag">RU 긴급 선발주</span></td>
+            <td>420억</td>
+            <td><span class="pill-v go">승인 (이원화 연동)</span></td>
+            <td>1,800국 이연 방지 · 현금흐름 영향 제한적</td>
+          </tr>
+          <tr>
+            <td><span class="ag">방어비 가이드 개정</span></td>
+            <td>제도</td>
+            <td><span class="pill-v go">승인 (1번 전제)</span></td>
+            <td>단가효율 +18% · ROAS 312→325%</td>
+          </tr>
+          <tr>
+            <td><span class="ag">W25 리텐션비</span></td>
+            <td>92억</td>
+            <td><span class="pill-v cond">조건부 승인</span></td>
+            <td>개정 가이드 적용 · 상한 설정 전제</td>
+          </tr>
+          <tr>
+            <td><span class="ag">전사 데이터 외부 이관</span></td>
+            <td>검토</td>
+            <td><span class="pill-v hold">보류</span></td>
+            <td>개인정보보호법·통신 규제 선제 검토 필요</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Security note -->
+<section id="security" style="padding:56px 0">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:36px">
+      <span class="eyebrow">TRUST &amp; SECURITY</span>
+      <h2>판단은 자동화하되, 신뢰는 사람이 통제합니다</h2>
+    </div>
+    <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="step"><div class="n">🔒</div><h3>발송 전 확인</h3><p>외부로 나가는 모든 메일·메시지는 수신자 화이트리스트와 발송 전 확인을 거칩니다.</p></div>
+      <div class="step"><div class="n">📑</div><h3>출처 투명성</h3><p>어떤 소스에서 무엇을 찾았고 무엇이 비었는지 명시 — 수치 날조를 원천 차단합니다.</p></div>
+      <div class="step"><div class="n">🏷</div><h3>민감도 레이블</h3><p>사내 자료의 민감도 분류를 인지하고, 보호되지 않은 대상으로의 유출을 방지합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Closing CTA -->
+<section class="cta" id="contact">
+  <div class="wrap">
+    <div class="cta-inner">
+      <span class="badge-grad"><span class="dot"></span>다음 임원 회의 전에 시작하세요</span>
+      <h2>오늘의 의사결정을<br>내일 아침 7시에 받아보세요</h2>
+      <p>SK 환경에 맞춘 파일럿을 2주 안에 구성해 드립니다.<br>실제 부문 보고서로 브리프를 만들어 효과를 먼저 확인하세요.</p>
+      <div class="row">
+        <a href="#" class="btn btn-gradient">데모 요청하기</a>
+        <a href="#" class="btn btn-ghost">제안서 다운로드</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo-f"><img class="uplusf" src="brand/sk.svg" alt="SK" /><img class="cpmark" src="brand/copilot-mark.png" alt="" /> Copilot 제안</div>
+        <p class="blurb">Microsoft 365 Copilot Cowork 기반 임원 의사결정 자동화. 사내·외부 데이터를 종합해 경영진 관점의 브리프를 자동 생성·발송합니다. 본 문서는 제안용 데모 자료입니다.</p>
+      </div>
+      <div>
+        <h4>솔루션</h4>
+        <ul>
+          <li><a href="#overview">개요</a></li>
+          <li><a href="#workflow">워크플로</a></li>
+          <li><a href="#impact">도입 효과</a></li>
+          <li><a href="#tiers">도입 옵션</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>신뢰</h4>
+        <ul>
+          <li><a href="#security">보안 &amp; 거버넌스</a></li>
+          <li><a href="#security">출처 추적</a></li>
+          <li><a href="#security">민감도 레이블</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>문의</h4>
+        <ul>
+          <li><a href="#contact">데모 요청</a></li>
+          <li><a href="#contact">파일럿 신청</a></li>
+          <li><a href="#contact">제안서 받기</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <div class="legal">© 2026 Microsoft 365 Copilot Cowork · SK 제안용 데모 자료 — 외부 배포 전 검토 요망<br>모든 수치는 데모 시연용 가상 데이터입니다.</div>
+      <div class="design-tag">
+        <span class="sw"><i style="background:#EA002C"></i><i style="background:#FF7A00"></i><i style="background:#1f1f1f"></i></span>
+        Design: SK (sk.md)
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
